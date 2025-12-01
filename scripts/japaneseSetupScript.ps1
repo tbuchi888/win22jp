@@ -1,7 +1,7 @@
 # japaneseSetupScript.ps1 - 外部ファイル呼び出し版（修正）
 $logPath = 'C:\WindowsAzure\Logs\JapaneseSetup'
-$statusPath = 'C:\ProgramData\JapaneseLangSetup'
-$scriptPath = 'C:\ProgramData\JapaneseLangSetup\setup-japanese.ps1'
+$statusPath = 'C:\Temp\JapaneseLangSetup'
+$scriptPath = 'C:\Temp\JapaneseLangSetup\setup-japanese.ps1'
 $downloadPath = $PSScriptRoot  # Custom Script Extension のダウンロードフォルダ
 
 if (-not (Test-Path $logPath)) { New-Item -Path $logPath -ItemType Directory -Force }
