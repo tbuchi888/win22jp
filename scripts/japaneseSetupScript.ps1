@@ -20,7 +20,7 @@ Write-Log "Scripts copied to $statusPath"
 # setup-japanese.ps1 の内容（$statusPath 内のスクリプトを参照）
 $mainScript = @'
 $logPath = 'C:\WindowsAzure\Logs\JapaneseSetup'
-$statusPath = 'C:\ProgramData\JapaneseLangSetup'
+$statusPath = 'C:\JapaneseLangSetup'
 function Write-Log { param([string]$Message); $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; "$ts - $Message" | Out-File -FilePath "$logPath\setup.log" -Append }
 
 $step1Done = Join-Path $statusPath 'step1.done'
