@@ -1,14 +1,23 @@
-$logPath = 'C:\\WindowsAzure\\Logs\\JapaneseSetup'
-$statusPath = 'C:\\ProgramData\\JapaneseLangSetup'
-$scriptPath = 'C:\\ProgramData\\JapaneseLangSetup\\setup-japanese.ps1'
+# japaneseSetupScript.ps1 - 外部ファイル呼び出し版（修正）
+$logPath = 'C:\WindowsAzure\Logs\JapaneseSetup'
+$statusPath = 'C:\ProgramData\JapaneseLangSetup'
+$scriptPath = 'C:\ProgramData\JapaneseLangSetup\setup-japanese.ps1'
+$downloadPath = $PSScriptRoot  # Custom Script Extension のダウンロードフォルダ
 
 if (-not (Test-Path $logPath)) { New-Item -Path $logPath -ItemType Directory -Force }
 if (-not (Test-Path $statusPath)) { New-Item -Path $statusPath -ItemType Directory -Force }
 
-function Write-Log { param([string]$Message); $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; \"$ts - $Message\" | Out-File -FilePath \"$logPath\\setup.log\" -Append; Write-Output $Message }
+function Write-Log { param([string]$Message); $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; "$ts - $Message" | Out-File -FilePath "$logPath\setup.log" -Append; Write-Output $Message }
 
-Write-Log 'Japanese Language Setup started'
+Write-Log "Japanese Language Setup started"
+Write-Log "Download path: $downloadPath"
 
+# Step1/Step2 スクリプトを永続的なフォルダにコピー（重要！）
+Copy-Item "$downloadPath\change-ws2022-lang-ja-step1-noreboot.ps1" "$statusPath\" -Force
+Copy-Item "$downloadPath\change-ws2022-lang-ja-step2-noreboot.ps1" "$statusPath\" -Force
+Write-Log "Scripts copied to $statusPath"
+
+# setup-japanese.ps1 の内容（$statusPath 内のスクリプトを参照）
 $mainScript = @'
 $logPath = 'C:\WindowsAzure\Logs\JapaneseSetup'
 $statusPath = 'C:\ProgramData\JapaneseLangSetup'
@@ -16,17 +25,15 @@ function Write-Log { param([string]$Message); $ts = Get-Date -Format 'yyyy-MM-dd
 
 $step1Done = Join-Path $statusPath 'step1.done'
 $step2Done = Join-Path $statusPath 'step2.done'
+$step1Script = Join-Path $statusPath 'change-ws2022-lang-ja-step1-noreboot.ps1'
+$step2Script = Join-Path $statusPath 'change-ws2022-lang-ja-step2-noreboot.ps1'
 
 Write-Log "Status: Step1=$([System.IO.File]::Exists($step1Done)), Step2=$([System.IO.File]::Exists($step2Done))"
 
 if (-not (Test-Path $step1Done)) {
-    Write-Log 'Step 1: Installing Japanese language pack'
+    Write-Log "Step 1: Running $step1Script"
     try {
-        Install-Language -Language ja-JP -CopyToSettings
-        $lang = New-WinUserLanguageList -Language 'ja-JP'
-        $lang.Add('en-US')
-        Set-WinUserLanguageList -LanguageList $lang -Force
-        Copy-UserInternationalSettingsToSystem -WelcomeScreen $true -NewUser $true
+        & $step1Script
         New-Item -Path $step1Done -ItemType File -Force
         Write-Log 'Step 1 completed. Rebooting...'
         shutdown /r /t 10 /c 'Japanese Setup - Reboot 1'
@@ -35,14 +42,9 @@ if (-not (Test-Path $step1Done)) {
 }
 
 if ((Test-Path $step1Done) -and (-not (Test-Path $step2Done))) {
-    Write-Log 'Step 2: Setting Japanese as default'
+    Write-Log "Step 2: Running $step2Script"
     try {
-        Set-WinSystemLocale -SystemLocale ja-JP
-        Set-WinUILanguageOverride -Language ja-JP
-        Set-WinHomeLocation -GeoId 122
-        Set-TimeZone -Id 'Tokyo Standard Time'
-        Set-Culture -CultureInfo ja-JP
-        Copy-UserInternationalSettingsToSystem -WelcomeScreen $true -NewUser $true
+        & $step2Script
         New-Item -Path $step2Done -ItemType File -Force
         Write-Log 'Step 2 completed.'
         Unregister-ScheduledTask -TaskName 'JapaneseLanguageSetup' -Confirm:$false -ErrorAction SilentlyContinue
@@ -59,8 +61,9 @@ if ((Test-Path $step1Done) -and (Test-Path $step2Done)) {
 '@
 
 $mainScript | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
-Write-Log "Script saved to $scriptPath"
+Write-Log "Main script saved to $scriptPath"
 
+# タスクスケジューラに登録
 $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -File `"$scriptPath`""
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
