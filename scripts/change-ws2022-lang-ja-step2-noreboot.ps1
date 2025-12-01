@@ -1,4 +1,3 @@
-takuyak@tbuchi888mini winvmjp % cat change-ws2022-lang-ja-step2.ps1
 function Set-LanguageOptions
 {
     [CmdletBinding()]
