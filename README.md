@@ -71,6 +71,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
 ### ログの確認
 
 セットアップログは以下の場所に保存されます：
+**Azure VM 以外で利用する場合は、パスをを変更してください**
 
 ```
 C:\WindowsAzure\Logs\JapaneseSetup\setup.log
@@ -85,10 +86,10 @@ C:\WindowsAzure\Logs\JapaneseSetup\setup.log
 
 ## 重要な注意事項
 
-- ⚠️ **本番環境での利用**: GitHub の raw コンテンツを直接参照するのではなく、スクリプトを Azure Blob Storage などの信頼できるストレージにアップロードしてご利用ください
-- ⚠️ **再起動**: セットアップには**2回の自動再起動**が必要です
-- ⚠️ **所要時間**: 完了まで約20〜30分かかります（ネットワーク速度により変動）
-- ⚠️ **言語パックのダウンロード**: Microsoft の公式サイトから約52MBの言語パックをダウンロードします
+- **本番環境での利用**: GitHub の raw コンテンツを直接参照するのではなく、スクリプトを Azure Blob Storage などの信頼できるストレージにアップロードしてご利用ください
+- **再起動**: セットアップには**2回の自動再起動**が必要です
+- **所要時間**: 完了まで再起動を含め約20〜30分かかります（ネットワーク速度により変動）
+- **言語パックのダウンロード**: Microsoft の公式サイトから約52MBの言語パックをダウンロードします
 
 ## トラブルシューティング
 
@@ -99,13 +100,3 @@ C:\WindowsAzure\Logs\JapaneseSetup\setup.log
    - `C:\JapaneseLangSetup\step1.done` - Step1 完了の印
    - `C:\JapaneseLangSetup\step2.done` - Step2 完了の印
 3. タスクスケジューラで `JapaneseLanguageSetup` タスクの状態を確認
-
-## ライセンス
-
-このプロジェクトは自由に使用できます。Microsoft の言語パックは Microsoft のライセンスに従います。
-
-## 参考情報
-
-- [Windows Server 2022 - Evaluation Center](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2022)
-- [Default Input Profiles (Input Locales) in Windows](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-input-locales-for-windows-language-packs)
-- [Guide to Windows Vista Multilingual User Interface](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-vista/cc721887(v=ws.10))
