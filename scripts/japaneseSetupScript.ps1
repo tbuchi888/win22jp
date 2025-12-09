@@ -37,7 +37,11 @@ if (-not (Test-Path $step1Done)) {
         New-Item -Path $step1Done -ItemType File -Force
         Write-Log 'Step 1 completed. Rebooting...'
         shutdown /r /t 10 /c 'Japanese Setup - Reboot 1'
-    } catch { Write-Log "Step 1 failed: $_" }
+    } catch {
+        Write-Log "Step 1 failed: $_"
+        Write-Log "Cleaning up scheduled task due to Step 1 failure"
+        Unregister-ScheduledTask -TaskName 'JapaneseLanguageSetup' -Confirm:$false -ErrorAction SilentlyContinue
+    }
     exit 0
 }
 
@@ -50,7 +54,11 @@ if ((Test-Path $step1Done) -and (-not (Test-Path $step2Done))) {
         Unregister-ScheduledTask -TaskName 'JapaneseLanguageSetup' -Confirm:$false -ErrorAction SilentlyContinue
         Write-Log 'Task removed. Final reboot...'
         shutdown /r /t 10 /c 'Japanese Setup - Final Reboot'
-    } catch { Write-Log "Step 2 failed: $_" }
+    } catch {
+        Write-Log "Step 2 failed: $_"
+        Write-Log "Cleaning up scheduled task due to Step 2 failure"
+        Unregister-ScheduledTask -TaskName 'JapaneseLanguageSetup' -Confirm:$false -ErrorAction SilentlyContinue
+    }
     exit 0
 }
 
