@@ -54,11 +54,8 @@ if ((Test-Path $step1Done) -and (-not (Test-Path $step2Done))) {
         # Schedule task deletion 1 hour after Step2 completion
         Write-Log 'Scheduling task cleanup in 1 hour...'
         # Create a cleanup command that removes both tasks
-        `$cleanupCmd = @`'
-Unregister-ScheduledTask -TaskName `'JapaneseLanguageSetup`' -Confirm:`$false -ErrorAction SilentlyContinue
-Unregister-ScheduledTask -TaskName `'JapaneseLanguageSetup_Cleanup`' -Confirm:`$false -ErrorAction SilentlyContinue
-`'@
-        $cleanupAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -Command `$cleanupCmd"
+        $cleanupCmd = "Unregister-ScheduledTask -TaskName 'JapaneseLanguageSetup' -Confirm:`$false -ErrorAction SilentlyContinue; Unregister-ScheduledTask -TaskName 'JapaneseLanguageSetup_Cleanup' -Confirm:`$false -ErrorAction SilentlyContinue"
+        $cleanupAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -Command `"$cleanupCmd`""
         $cleanupTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddHours(1)
         $cleanupPrincipal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
         $cleanupSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
