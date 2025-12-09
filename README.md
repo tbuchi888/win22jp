@@ -66,7 +66,9 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
 
 1. **初回実行**: `japaneseSetupScript.ps1` が実行され、Step1 スクリプトを実行後、自動的に再起動
 2. **再起動後 (1回目)**: タスクスケジューラにより Step2 スクリプトが実行され、再度再起動
-3. **再起動後 (2回目)**: 日本語化が完了し、タスクスケジューラのタスクが自動削除
+3. **再起動後 (2回目)**: 日本語化が完了し、タスクスケジューラのタスクが1時間後に自動削除されます
+   - Step2 完了後、クリーンアップタスクが登録され、1時間後に `JapaneseLanguageSetup` タスクと自身を削除します
+   - エラーが発生した場合は、即座にタスクが削除されます
 
 ### ログの確認
 
